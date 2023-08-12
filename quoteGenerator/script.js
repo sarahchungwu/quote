@@ -7,52 +7,56 @@ const loader = document.getElementById('loader')
 
 let apiQuotes = []
 
-// show Loading
-function loading() {
+// Show the loader and hide the quote container
+function showLoadingSpinner() {
   loader.hidden = false
   quoteContainer.hidden = true
 }
 
-// Hide Loading
-function complete() {
+// Hide the loader and show the quote container
+function hideLoadingSpinner() {
   quoteContainer.hidden = false
   loader.hidden = true
 }
 
-//Show New Quote
+// Display a new random quote
 function newQuote() {
-  loading()
+  showLoadingSpinner()
   const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)]
   const { author, text } = quote
 
   authorText.textContent = author || 'Unknown'
   quoteText.classList.toggle('long-quote', text.length > 100)
-
-  // Set Quote, Hide Loader
   quoteText.textContent = text
-  complete()
+
+  // Hide the loader and show the quote
+  hideLoadingSpinner()
 }
 
-// Get Quotes From API
-async function getQuote() {
+// Fetch quotes from the API
+async function getQuotes() {
   try {
+    showLoadingSpinner()
     const apiUrl = 'https://jacintodesign.github.io/quotes-api/data/quotes.json'
     const res = await fetch(apiUrl)
     apiQuotes = await res.json()
-    console.log(apiQuotes)
     newQuote()
-  } catch (error) {}
+  } catch (error) {
+    hideLoadingSpinner()
+    quoteText.textContent = 'Oops, something went wrong!'
+    authorText.textContent = ''
+  }
 }
 
-// Tweet Quote
+// Open a new window to tweet the current quote
 function tweetQuote() {
   const twitterUrl = `https://twitter.com/intent/tweet?text=${quoteText.textContent} - ${authorText.textContent}`
   window.open(twitterUrl, '_blank')
 }
 
-// Event Listener
+// Event Listeners
 newQuoteBtn.addEventListener('click', newQuote)
 twitterBtn.addEventListener('click', tweetQuote)
 
-//OnLoad
-getQuote()
+// Fetch quotes on page load
+getQuotes()
